@@ -1,3 +1,5 @@
+package spbu;
+
 import java.util.*;
 
 public class Main {
@@ -7,10 +9,10 @@ public class Main {
         int matrix2[][];
 
         Scanner input = new Scanner(System.in);
-        System.out.println("Imput rang");
+        System.out.println("Input rang");
         size = input.nextInt();
         matrix1 = new int[size][size];
-        System.out.println("imput first matrix");
+        System.out.println("input first matrix");
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 matrix1[i][j] = input.nextInt();
@@ -26,7 +28,7 @@ public class Main {
         }
 
         System.out.println("imput third matrix");
-        Hashtable a1 = new Hashtable<>();
+        Hashtable<Integer, Integer> a1 = new Hashtable<>();
         for (int i = 0; i < size*size; i++) {
             int b = input.nextInt();
             if (b != 0){
@@ -35,7 +37,7 @@ public class Main {
         }
 
         System.out.println("imout fourth matrix");
-        Hashtable a2 = new Hashtable<>();
+        Hashtable<Integer, Integer> a2 = new Hashtable<>();
         for (int i = 0; i < size*size; i++) {
             int b = input.nextInt();
             if (b != 0){
