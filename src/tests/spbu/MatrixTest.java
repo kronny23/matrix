@@ -27,7 +27,6 @@ public class MatrixTest {
         SparseMatrix result = sparseMatrix1.mulSparseSparse(sparseMatrix2);
         assertTrue(result.equals(resultMatrix1));
     }
-
     @Test
     public void mulDD() {
         DenseMatrix result = denseMatrix1.mulDenseDense(denseMatrix2);
