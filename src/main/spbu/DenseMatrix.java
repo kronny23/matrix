@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class DenseMatrix {
-    private int size;
-    private int matrix[][];
+    int size;
+    int matrix[][];
 
     public DenseMatrix(int[][] matrix, int size) {
         this.size = size;
@@ -46,6 +46,17 @@ public class DenseMatrix {
             for (int j = 0; j < size; j++) {
                 for (int k = 0; k < size; k++) {
                     res.matrix[i][j] += this.matrix[i][k] * other.matrix[k][j];
+                }
+            }
+        }
+        return res;
+    }
+    public DenseMatrix mulDenseSparse(SparseMatrix other) {
+        DenseMatrix res = new DenseMatrix(size);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    res.matrix[i][j] += this.matrix[i][k] * other.hash.get(k * size + j);
                 }
             }
         }
