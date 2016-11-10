@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.util.*;
 
 public class SparseMatrix {
-    private int size;
-    private Hashtable<Integer, Integer> hash;
+    int size;
+    Hashtable<Integer, Integer> hash;
 
     public SparseMatrix(BufferedReader io) {
         Scanner scanner = new Scanner(io);
@@ -49,6 +49,22 @@ public class SparseMatrix {
                 }
                 if (sum != 0) {
                     res.hash.put(h * size + i, sum);
+                }
+            }
+        }
+        return res;
+    }
+
+    public SparseMatrix mulSparseDense(DenseMatrix other) {
+        SparseMatrix res = new SparseMatrix(size);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                int sum = 0;
+                for (int k = 0; k < size; k++) {
+                    sum += this.hash.get(i * size + k) * other.matrix[k][j];
+                }
+                if ( sum != 0 ) {
+                    res.hash.put(i * size + j, sum);
                 }
             }
         }
