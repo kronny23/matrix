@@ -47,4 +47,16 @@ public class MatrixTest {
         DenseMatrix result = denseMatrix1.mulDenseSparse(sparseMatrix1);
         assertTrue(result.equals(resultMatrix4));
     }
+
+    @Test
+    public void mulDenseMultiThread() {
+        DenseMatrix result = denseMatrix1.dMulDenseDense(denseMatrix2);
+        assertTrue(result.equals(resultMatrix2));
+    }
+
+    @Test
+    public void mulSparseMultiThread() {
+        SparseMatrix result = sparseMatrix1.dMulSparseSparse(sparseMatrix2);
+        assertTrue(result.equals(resultMatrix1));
+    }
 }

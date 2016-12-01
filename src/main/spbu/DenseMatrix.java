@@ -63,6 +63,53 @@ public class DenseMatrix {
         return res;
     }
 
+    public DenseMatrix dMulDenseDense(DenseMatrix other) {
+        class Dispatcher {
+            int value = 0;
+            public int next() {
+                synchronized (this) {
+                    return value++;
+                }
+            }
+        }
+
+        DenseMatrix result = new DenseMatrix(this.size);
+        Dispatcher dispatcher = new Dispatcher();
+
+        class RowMultiplier implements Runnable {
+            Thread thread;
+            public RowMultiplier() {
+                this.thread = new Thread(this);
+                this.thread.start();
+            }
+
+            public void run() {
+                int i = dispatcher.next();
+                for (int j = 0; j < size; j++) {
+                    int sum = 0;
+                    for (int k = 0; k < size; k++) {
+                        sum += matrix[i][k] * other.matrix[k][j];
+                    }
+                    result.matrix[i][j] = sum;
+                }
+            }
+        }
+
+        RowMultiplier[] rowMultipliers = new RowMultiplier[size];
+        for (int i = 0; i < size; i++) {
+            rowMultipliers[i] = new RowMultiplier();
+        }
+        try {
+            for (int i = 0; i < size; i++) {
+                rowMultipliers[i].thread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public void MatrixTrans() {
         for (int i = 0; i < size; i++) {
             for (int j = i; j < size; j++) {
