@@ -35,42 +35,56 @@ public class SparseMatrix {
         this.size = size;
     }
 
+    public int get(int y, int x) {
+        if (this.hash.containsKey(y * size + x)) {
+            return this.hash.get(y * size + x);
+        }
+        return 0;
+    }
+    public void set(int y, int x, int value) {
+        if (value == 0) {
+            if (this.hash.containsKey(y * size + x)) {
+                this.hash.remove(y * size + x);
+            }
+        } else {
+            this.hash.put(y * size + x, value);
+        }
+    }
+    public void add(int y, int x, int additional) {
+        set(y, x, get(y, x) + additional);
+    }
+
     public SparseMatrix mulSparseSparse(SparseMatrix other) {
-        SparseMatrix res = new SparseMatrix(size);
-        for (int h = 0; h < size; h++) {
+        SparseMatrix result = new SparseMatrix(size);
+
+        for (int keys : hash.keySet()) {
+            int y = keys / size;
+            int x = keys % size;
+            int value = this.get(y, x);
+            System.out.println(keys + " " + value);
+            int sum = 0;
             for (int i = 0; i < size; i++) {
-                int sum = 0;
-                for (int j = 0; j < size; j++) {
-                    int keyA = h * size + j;
-                    int keyB = j * size + i;
-                    if ((this.hash.get(keyA) != null) && (other.hash.get(keyB) != null)) {
-                        sum += this.hash.get(keyA) * other.hash.get(keyB);
-                    }
-                }
-                if (sum != 0) {
-                    res.hash.put(h * size + i, sum);
-                }
+                result.add(y, i, value * other.get(x, i));
             }
         }
-        return res;
+
+        return result;
     }
 
     public SparseMatrix mulSparseDense(DenseMatrix other) {
-        SparseMatrix res = new SparseMatrix(size);
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                int sum = 0;
-                for (int k = 0; k < size; k++) {
-                    if (this.hash.get(i * size + k) != null) {
-                        sum += this.hash.get(i * size + k) * other.matrix[k][j];
-                    }
-                }
-                if ( sum != 0 ) {
-                    res.hash.put(i * size + j, sum);
-                }
+        SparseMatrix result = new SparseMatrix(size);
+
+        for (int keys : hash.keySet()) {
+            int y = keys / size;
+            int x = keys % size;
+            int value = this.get(y, x);
+            int sum = 0;
+            for (int i = 0; i < size; i++) {
+                result.add(y, i, value * other.matrix[x][i]);
             }
         }
-        return res;
+
+        return result;
     }
 
     public SparseMatrix dMulSparseSparse(SparseMatrix other) {
@@ -130,18 +144,10 @@ public class SparseMatrix {
 
     public void HashOut()
     {
-        for (int i = 0; i < size*size; i++)
-        {
-            if(i%size == 0){
-                System.out.println();
-            }
-            if (hash.get(i)!=null)
-            {
-                System.out.print((int)hash.get(i) + " ");
-            }
-            else
-            {
-                System.out.print("0 ");
+        for (int i = 0; i < size; i++) {
+            System.out.println();
+            for (int j = 0; j < size; j++) {
+                System.out.print(this.get(i, j) + " ");
             }
         }
     }
