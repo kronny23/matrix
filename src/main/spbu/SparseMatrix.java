@@ -1,5 +1,7 @@
 package spbu;
 
+import groovy.json.internal.ArrayUtils;
+
 import java.io.BufferedReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,7 +64,6 @@ public class SparseMatrix {
             int y = keys / size;
             int x = keys % size;
             int value = this.get(y, x);
-            System.out.println(keys + " " + value);
             int sum = 0;
             for (int i = 0; i < size; i++) {
                 result.add(y, i, value * other.get(x, i));
@@ -87,15 +88,16 @@ public class SparseMatrix {
         return result;
     }
 
-    public SparseMatrix newDMulSparseSparse(SparseMatrix other) {
+    public SparseMatrix dMulSparseSparse(SparseMatrix other) {
         SparseMatrix result = new SparseMatrix(size);
         Integer[] matrixKeys =  hash.keySet().toArray(new Integer[hash.size()]);
+        org.apache.commons.lang.ArrayUtils.reverse(matrixKeys);
 
-        SparseMatrix currentSparseMatrix = this;
         class MultRow implements Runnable {
             public Thread thread;
             int firstKeyPosition, lastKeyPosition;
             public MultRow(int firstKeyPosition, int lastKeyPosition) {
+                System.out.println(firstKeyPosition + " " + lastKeyPosition);
                 this.firstKeyPosition = firstKeyPosition;
                 this.lastKeyPosition  = lastKeyPosition;
                 thread = new Thread(this);
@@ -117,67 +119,15 @@ public class SparseMatrix {
         ArrayList<MultRow> rowCalculators = new ArrayList<>();
         int matrixKeyOfNextRowStart = 0;
         for (int curMatrixKey = 1; curMatrixKey < matrixKeys.length; curMatrixKey++) {
-            if (matrixKeys[matrixKeyOfNextRowStart] % size != matrixKeys[curMatrixKey] % size) {
+            if (matrixKeys[matrixKeyOfNextRowStart] / size != matrixKeys[curMatrixKey] / size) {
                 rowCalculators.add(new MultRow(matrixKeyOfNextRowStart, curMatrixKey - 1));
                 matrixKeyOfNextRowStart = curMatrixKey;
             }
         }
         rowCalculators.add(new MultRow(matrixKeyOfNextRowStart, matrixKeys.length - 1));
-
-        for (MultRow rowCalculator : rowCalculators) {
-            try {
-                rowCalculator.thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-
-    public SparseMatrix dMulSparseSparse(SparseMatrix other) {
-        class Dispatcher {
-            int value = 0;
-            public int next() {
-                synchronized (this) {
-                    return value++;
-                }
-            }
-        }
-
-        SparseMatrix result = new SparseMatrix(this.size);
-        Dispatcher dispatcher = new Dispatcher();
-
-        class RowMultiplier implements Runnable {
-            Thread thread;
-            public RowMultiplier() {
-                this.thread = new Thread(this);
-                this.thread.start();
-            }
-
-            public void run() {
-                int i = dispatcher.next();
-                for (int j = 0; j < size; j++) {
-                    int sum = 0;
-                    for (int k = 0; k < size; k++) {
-                        if (hash.get(i * size + k) != null && other.hash.get(k * size + j) != null) {
-                            sum += hash.get(i * size + k) * other.hash.get(k * size + j);
-                        }
-                    }
-                    if (sum != 0) {
-                        result.hash.put(i * size + j, sum);
-                    }
-                }
-            }
-        }
-
-        RowMultiplier[] rowMultipliers = new RowMultiplier[size];
-        for (int i = 0; i < size; i++) {
-            rowMultipliers[i] = new RowMultiplier();
-        }
         try {
-            for (int i = 0; i < size; i++) {
-                rowMultipliers[i].thread.join();
+            for (MultRow rowCalculator : rowCalculators) {
+                rowCalculator.thread.join();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

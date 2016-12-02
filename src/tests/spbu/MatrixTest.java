@@ -56,7 +56,7 @@ public class MatrixTest {
 
     @Test
     public void mulSparseMultiThread() {
-        SparseMatrix result = sparseMatrix1.newDMulSparseSparse(sparseMatrix2);
+        SparseMatrix result = sparseMatrix1.dMulSparseSparse(sparseMatrix2);
         assertTrue(result.equals(resultMatrix1));
     }
 }
